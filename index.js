@@ -51,11 +51,11 @@ app.get('/api/todos', (req, res) => {
 // Add a new todo
 app.post('/api/todos', (req, res) => {
   const { text } = req.body;
-  
+
   if (!text || text.trim() === '') {
     return res.status(400).json({ error: 'Todo text is required' });
   }
-  
+
   const todos = readTodos();
   const newTodo = {
     id: Date.now(),
@@ -63,9 +63,9 @@ app.post('/api/todos', (req, res) => {
     completed: false,
     createdAt: new Date().toISOString()
   };
-  
+
   todos.push(newTodo);
-  
+
   if (writeTodos(todos)) {
     res.status(201).json(newTodo);
   } else {
@@ -82,22 +82,21 @@ app.put('/api/todos/:id', (req, res) => {
   if (i === -1) return res.status(404).json({ error: 'Todo not found' });
 
   todos[i].completed = !todos[i].completed; // toggle
-  
-  if (writeTodos(todos)) return res.json(todos[i]); // return updated todo
+
+  if (writeTodos(todos)) return res.json(todos[i]);
   return res.status(500).json({ error: 'Failed to update todo' });
 });
-
 
 // Delete a todo
 app.delete('/api/todos/:id', (req, res) => {
   const id = parseInt(req.params.id);
   const todos = readTodos();
   const filteredTodos = todos.filter(t => t.id !== id);
-  
+
   if (todos.length === filteredTodos.length) {
     return res.status(404).json({ error: 'Todo not found' });
   }
-  
+
   if (writeTodos(filteredTodos)) {
     res.json({ message: 'Todo deleted successfully' });
   } else {
@@ -105,15 +104,37 @@ app.delete('/api/todos/:id', (req, res) => {
   }
 });
 
+// Edit todo text (NEW)
+app.patch('/api/todos/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const { text } = req.body;
+
+  if (!text || text.trim() === '') {
+    return res.status(400).json({ error: 'Todo text is required' });
+  }
+
+  const todos = readTodos();
+  const i = todos.findIndex(t => t.id === id);
+
+  if (i === -1) {
+    return res.status(404).json({ error: 'Todo not found' });
+  }
+
+  todos[i].text = text.trim();
+
+  if (writeTodos(todos)) {
+    return res.json(todos[i]);
+  }
+  return res.status(500).json({ error: 'Failed to update todo' });
+});
+
 // Initialize todos file on startup
 initTodosFile();
 
-// Only start the server if this file is run directly (not imported as a module)
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
 }
 
-// Export for testing and deployment
 module.exports = app;

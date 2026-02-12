@@ -126,6 +126,24 @@ h1 {
     background: #ff3838;
 }
 
+/* Edit button (same style as Delete, different color) */
+.edit-btn {
+    background-color: #4a90e2;   /* สีฟ้า */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.edit-btn:hover {
+    background-color: #357ab8;
+}
+
+
+
 .stats {
     display: flex;
     justify-content: space-between;
