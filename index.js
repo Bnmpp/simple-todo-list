@@ -77,14 +77,16 @@ app.post('/api/todos', (req, res) => {
 app.put('/api/todos/:id', (req, res) => {
   const id = parseInt(req.params.id);
   const todos = readTodos();
-  const todoIndex = todos.findIndex(t => t.id === id);
+  const i = todos.findIndex(t => t.id === id);
+
+  if (i === -1) return res.status(404).json({ error: 'Todo not found' });
+
+  todos[i].completed = !todos[i].completed; // toggle
   
-  if (todoIndex === -1) {
-    return res.status(404).json({ error: 'Todo not found' });
-  }
-  
-  todos[todoIndex].completed = true;
+  if (writeTodos(todos)) return res.json(todos[i]); // return updated todo
+  return res.status(500).json({ error: 'Failed to update todo' });
 });
+
 
 // Delete a todo
 app.delete('/api/todos/:id', (req, res) => {
